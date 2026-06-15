@@ -1,57 +1,101 @@
-# Helper functions for the housing-inequality-nl report.
-# Sourced by report.Rmd and run_all.R.
+# =============================================================================
+# R/helpers.R  —  Data helpers for the woningmarkt-project report
+# Programming for Economists (E_EBE1_PFE), VU Amsterdam 2025-2026
+#
+# Functions used by report.Rmd:
+#   cbs_cached(id, fetch)        cache a CBS download to data/<id>.rds
+#   try_cbs(id)                  download a verified CBS table (NULL on failure)
+#   normalise_cbs(df, value)     tidy raw CBS df -> province x year x <value>
+#   price_to_income(price, inc)  price-to-income ratio
+#
+# Verified province-level tables (RegioS = PV20..PV31, yearly Perioden):
+#   83625NED  Bestaande koopwoningen; prijzen, regio      (avg price, 1995-)
+#   86161NED  Inkomen van huishoudens; regio              (income, 2011-2024)
+# =============================================================================
 
-suppressMessages({
-  library(cbsodataR)
+suppressPackageStartupMessages({
   library(tidyverse)
+  library(cbsodataR)
 })
 
-#' Download a CBS table, caching the result to disk (data/<id>.rds).
-cbs_cached <- function(table_id, cache_dir = "data") {
-  if (!dir.exists(cache_dir)) dir.create(cache_dir, showWarnings = FALSE)
-  cache_file <- file.path(cache_dir, paste0(table_id, ".rds"))
-  if (file.exists(cache_file)) return(readRDS(cache_file))
-  dat <- cbs_get_data(table_id)
-  saveRDS(dat, cache_file)
-  dat
+# ---- CBS province code <-> name --------------------------------------------
+# Names match the `statnaam` of the cartomap NL GeoJSON; we nonetheless join the
+# map on the province CODE (statcode) to avoid any name-encoding issues.
+pv_to_name <- c(
+  PV20 = "Groningen",    PV21 = "Fryslân",   PV22 = "Drenthe",
+  PV23 = "Overijssel",   PV24 = "Flevoland",      PV25 = "Gelderland",
+  PV26 = "Utrecht",      PV27 = "Noord-Holland",  PV28 = "Zuid-Holland",
+  PV29 = "Zeeland",      PV30 = "Noord-Brabant",  PV31 = "Limburg"
+)
+name_to_pv <- setNames(names(pv_to_name), pv_to_name)
+
+# ---- cbs_cached() -----------------------------------------------------------
+# Run `fetch()` once and cache the result to data/<id>.rds; reuse on later knits
+# so the report does not re-hit the CBS API every time.
+cbs_cached <- function(id, fetch) {
+  dir.create("data", showWarnings = FALSE)
+  f <- file.path("data", paste0(id, ".rds"))
+  if (file.exists(f)) return(readRDS(f))
+  x <- fetch()
+  saveRDS(x, f)
+  x
 }
 
-#' Safe wrapper: returns NULL instead of erroring if the API is unreachable.
-try_cbs <- function(table_id) {
-  tryCatch(cbs_cached(table_id), error = function(e) NULL)
+# ---- try_cbs() --------------------------------------------------------------
+# Download a verified province-level table with the right server-side filters.
+# Returns NULL on any error so the report can fall back gracefully.
+try_cbs <- function(id) {
+  tryCatch(
+    cbs_cached(id, function() {
+      options(timeout = 300)
+      if (id == "86161NED") {
+        cbs_get_data(
+          id,
+          Populatie               = "1050010",  # particuliere huishoudens incl. studenten
+          KenmerkenVanHuishoudens = "1050010",  # all households (total)
+          RegioS                  = has_substring("PV"),
+          Perioden                = has_substring("JJ00")
+        )
+      } else {
+        cbs_get_data(
+          id,
+          RegioS   = has_substring("PV"),
+          Perioden = has_substring("JJ00")
+        )
+      }
+    }),
+    error = function(e) {
+      message("try_cbs(", id, ") failed: ", conditionMessage(e))
+      NULL
+    }
+  )
 }
 
-#' Price-to-income ratio.
-price_to_income <- function(avg_price, median_income) avg_price / median_income
+# ---- normalise_cbs() --------------------------------------------------------
+# Turn a raw CBS data frame into a tidy province x year table with one value
+# column named `value_name`. Detects the source column and unit automatically:
+#   - house price  (GemiddeldeVerkoopprijs_1)   unit "euro"      -> scale 1
+#   - median income (MediaanBesteedbaarInkomen_6) unit "1000 eur" -> scale 1000
+normalise_cbs <- function(df, value_name) {
+  df <- df %>% mutate(across(where(is.character), str_trim)) %>%
+    filter(str_starts(RegioS, "PV"))
 
-#' Normalise a raw CBS table into a tidy province-year tibble.
-#'
-#' CBS tables use long Dutch column names, store the region in a coded
-#' "RegioS"/"Regio" column and the period in "Perioden". This squishes names,
-#' parses the year, and renames the chosen value column. ADAPT the value-column
-#' selector to the actual table you pulled before final submission.
-#'
-#' @param raw    data frame returned by cbs_get_data().
-#' @param value  desired name for the numeric value column, e.g. "avg_price".
-normalise_cbs <- function(raw, value) {
-  df <- as_tibble(raw)
-  names(df) <- stringr::str_squish(names(df))
-
-  period_col <- intersect(c("Perioden", "Periods"), names(df))[1]
-  region_col <- intersect(c("RegioS", "Regio", "Regions"), names(df))[1]
-  # First numeric column is taken as the measure; adjust if your table differs.
-  num_cols   <- names(df)[sapply(df, is.numeric)]
-  value_col  <- num_cols[1]
-
-  out <- df |>
-    mutate(year = readr::parse_number(as.character(.data[[period_col]]))) |>
-    filter(!is.na(year))
-  if (!is.na(region_col)) {
-    out <- out |> mutate(province = stringr::str_squish(as.character(.data[[region_col]])))
+  if ("GemiddeldeVerkoopprijs_1" %in% names(df)) {
+    raw_val <- df[["GemiddeldeVerkoopprijs_1"]]; scale <- 1
+  } else if ("MediaanBesteedbaarInkomen_6" %in% names(df)) {
+    raw_val <- df[["MediaanBesteedbaarInkomen_6"]]; scale <- 1000
   } else {
-    out <- out |> mutate(province = "Netherlands")
+    stop("normalise_cbs(): no known value column found in this table.")
   }
-  out |>
-    transmute(province, year, !!value := .data[[value_col]]) |>
-    filter(!is.na(.data[[value]]))
+
+  tibble(
+    province = unname(pv_to_name[df$RegioS]),
+    year     = as.integer(str_sub(df$Perioden, 1, 4)),
+    !!value_name := as.numeric(raw_val) * scale
+  ) %>%
+    filter(!is.na(province), !is.na(year)) %>%
+    arrange(province, year)
 }
+
+# ---- price_to_income() ------------------------------------------------------
+price_to_income <- function(price, income) price / income
