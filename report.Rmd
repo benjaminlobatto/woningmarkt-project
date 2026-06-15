@@ -1,0 +1,317 @@
+---
+title: "Quantifying a Social Problem: Housing Inequality in the Netherlands"
+subtitle: "Affordability, regional disparity, and the price-to-income ratio"
+author: "Group CPR02: Joey Pekel, Lior Santcroos, Benjamin Lobatto, Jeroen Warnaar, Steven van Zuijlen, Bianca Pariamachi"
+date: "`r format(Sys.Date(), '%d %B %Y')`"
+output:
+  pdf_document:
+    toc: true
+    toc_depth: 2
+    number_sections: true
+    fig_caption: true
+# Public GitHub repository (REQUIRED in the handed-in PDF):
+# https://github.com/benjaminlobatto/woningmarkt-project
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  echo = TRUE, warning = FALSE, message = FALSE,
+  fig.align = "center", fig.width = 7, fig.height = 4.3, dpi = 150
+)
+
+required <- c("cbsodataR", "tidyverse", "patchwork", "scales", "sf", "knitr")
+missing  <- required[!required %in% rownames(installed.packages())]
+if (length(missing)) install.packages(missing, repos = "https://cloud.r-project.org")
+
+library(cbsodataR); library(tidyverse); library(patchwork)
+library(scales);   library(sf);        library(knitr)
+
+# VU Amsterdam palette + shared theme
+vu_blue<-"#0077B3"; vu_navy<-"#001489"; vu_orange<-"#E87722"
+vu_grey<-"#666666"; vu_red<-"#C8102E"
+theme_vu <- function(b=11) theme_minimal(b) + theme(
+  plot.title=element_text(face="bold",colour=vu_navy,size=rel(1.1)),
+  plot.subtitle=element_text(colour=vu_grey),
+  axis.title=element_text(colour=vu_navy),
+  panel.grid.minor=element_blank(), legend.position="bottom")
+theme_set(theme_vu())
+
+source("R/helpers_cpr02.R")  # cbs_cached(), try_cbs(), normalise_cbs(), price_to_income()
+```
+
+> **Public GitHub repository:** <https://github.com/benjaminlobatto/woningmarkt-project>
+> *(This link is required and must be visible in the handed-in PDF.)*
+
+# Introduction and context
+
+Housing affordability is one of the most pressing social problems in the
+Netherlands. Over the past two decades, house prices have risen far faster than
+household incomes, and the gap is highly uneven across provinces: the Randstad
+(Noord-Holland, Zuid-Holland, Utrecht) has decoupled from peripheral regions.
+The OECD and UN-Habitat both treat the **price-to-income ratio (PIR)** as a core
+affordability indicator, with a value above 3 widely read as "unaffordable"
+(UN-Habitat, n.d.). The OECD's 2025 *Economic Survey of the Netherlands*
+documents a structural shortage of roughly 400,000 homes and a three-tiered
+market that increasingly squeezes lower- and middle-income households (OECD,
+2025). De Nederlandsche Bank reaches a similar conclusion from the demand side:
+house prices have outpaced households' borrowing capacity since 2013, so that by
+2027 only about one in three households is projected to be able to finance an
+average home, down from nearly one in two in 2019 (DNB, 2024). These two
+independent assessments — one structural, one financial — motivate our
+quantitative analysis below.
+
+This decoupling matters because it shifts wealth toward existing owners and
+locks younger and lower-income households out of ownership, reinforcing
+inter-generational inequality. We quantify the problem along three rubric
+dimensions — over **time**, across **provinces (space)**, and around a specific
+**event** (the 2008 financial crisis) — and across an income **sub-population**
+split.
+
+## Research questions
+
+1. **Temporal:** How has national housing affordability (PIR) evolved over time?
+2. **Spatial:** Which provinces are least affordable, and how large is the gap?
+3. **Event:** How did the 2008 crisis interrupt the price trajectory?
+4. **Sub-population:** Do affordability dynamics differ between higher- and
+   lower-income provinces?
+
+# Data and methods
+
+We document and merge **two public CBS datasets**, both retrieved
+programmatically via the `cbsodataR` OData API (collector: Statistics
+Netherlands; method: administrative registers and the Land Registry *Kadaster*).
+
+| Dataset | What it provides | Granularity | CBS table |
+|---|---|---|---|
+| House prices (existing own homes) | Average sale price, € | Year × province | `83625NED` |
+| Household income | Median disposable income, € | Year × province | `86161NED` |
+
+We chose CBS because it is the authoritative national statistical office, its
+tables are openly licensed and versioned, and both indicators share a common
+`year × province` key that lets us merge them and compute affordability
+directly. The price series runs from 1995, while the regional income series
+begins in 2011; the merged affordability panel therefore covers **2011–2024**,
+and the 2008 event analysis uses the longer price series. A limitation is that
+purchase prices ignore the large rental/social sector (discussed in §6).
+
+```{r load, results="hide"}
+# Verified province-level CBS tables (confirmed via cbs_get_meta to have a
+# RegioS province dimension and yearly Perioden). Each download is cached to
+# data/ on first knit.
+raw_price  <- try_cbs("83625NED")   # avg sale price, existing homes, by province
+raw_income <- try_cbs("86161NED")   # disposable household income, by province
+```
+
+```{r build-data, include=FALSE}
+# Primary path: build the province-year panel from real CBS data. The fallback
+# below only triggers if the CBS API is unreachable AND nothing is cached, so
+# that the document still compiles; the live CBS pull is the source of record.
+provinces <- unname(pv_to_name)   # the 12 official province names
+
+if (is.null(raw_price) || is.null(raw_income)) {
+  set.seed(1)
+  years <- 1995:2024
+  premium <- setNames(runif(length(provinces), .85, 1.6), provinces)
+  premium[c("Noord-Holland","Utrecht","Zuid-Holland")] <- c(1.6,1.45,1.3)
+  prices  <- expand_grid(province=provinces, year=years) |>
+    mutate(avg_price = round(180000*premium[province] *
+            (1.05)^(year-1995) * ifelse(year %in% 2009:2013, .9, 1) *
+            rnorm(n(),1,.02)))
+  incomes <- expand_grid(province=provinces, year=2011:2024) |>
+    mutate(median_income = round(28000*(premium[province]*.4+.6) *
+            (1.018)^(year-2011) * rnorm(n(),1,.01)))
+  data_source <- "Illustrative fallback panel (CBS API unavailable at knit time)"
+} else {
+  prices  <- normalise_cbs(raw_price,  "avg_price")      # 1995-2024
+  incomes <- normalise_cbs(raw_income, "median_income")  # 2011-2024
+  data_source <- "Statistics Netherlands (CBS), via cbsodataR (real data)"
+}
+```
+
+The data source for this knit is: **`r data_source`**.
+
+# Data cleaning and merging
+
+`normalise_cbs()` trims CBS' padded codes, parses the period into a numeric
+`year`, restricts to the 12 provinces (codes `PV20`–`PV31`), and rescales income
+from CBS' "× 1000 euro" unit. We then **merge** the two datasets on
+`province × year` and construct **two new analytical variables**:
+
+- **`pir`** — the price-to-income ratio (`avg_price / median_income`), the
+  affordability indicator; and
+- **`gap`** — the *affordability gap index*: PIR relative to the UN-Habitat
+  threshold of 3 (`pir/3 - 1`), so positive values flag unaffordable
+  province-years and the magnitude is directly interpretable.
+
+```{r clean-merge}
+panel <- inner_join(prices, incomes, by = c("province","year")) |>
+  filter(province %in% provinces) |>
+  mutate(
+    pir = price_to_income(avg_price, median_income),  # new variable 1
+    gap = pir/3 - 1                                    # new variable 2
+  ) |>
+  arrange(province, year)
+
+# National yearly aggregates (unweighted mean across provinces).
+# PIR uses the merged panel (2011-2024); the price-only series spans 1995-2024
+# and is used for the 2008 event analysis.
+national <- panel |>
+  group_by(year) |>
+  summarise(avg_price = mean(avg_price), median_income = mean(median_income),
+            pir = mean(pir), .groups = "drop")
+price_history <- prices |>
+  group_by(year) |> summarise(avg_price = mean(avg_price), .groups = "drop")
+glimpse(panel)
+```
+
+# Visualisations
+
+## Temporal variation
+
+```{r fig-temporal, fig.cap="National price-to-income ratio over time."}
+ggplot(national, aes(year, pir)) +
+  geom_hline(yintercept = 3, linetype = "dashed", colour = vu_navy) +
+  geom_line(colour = vu_blue, linewidth = 1) + geom_point(colour = vu_navy) +
+  annotate("text", x = min(national$year), y = 3,
+           label = "UN-Habitat threshold = 3", vjust = -0.6, hjust = 0,
+           colour = vu_navy, size = 3) +
+  labs(title = "Affordability has steadily worsened",
+       subtitle = paste0("National average PIR, ", min(national$year), "–",
+                         max(national$year)),
+       x = NULL, y = "Price-to-income ratio")
+```
+
+The PIR (years of median disposable income per average home) sits far above the
+UN-Habitat affordability threshold of 3 throughout and trends clearly upward,
+confirming a structural worsening of affordability over the observed period.
+
+## Sub-population variation
+
+```{r fig-subpop, fig.cap="PIR for higher- vs. lower-income provinces."}
+grp <- panel |>
+  group_by(province) |> mutate(mean_inc = mean(median_income)) |> ungroup() |>
+  mutate(group = ifelse(mean_inc >= median(mean_inc),
+                        "Higher-income provinces", "Lower-income provinces"))
+ggplot(grp, aes(year, pir, group = province, colour = group)) +
+  geom_line(alpha = .5) +
+  stat_summary(aes(group = group), fun = mean, geom = "line", linewidth = 1.2) +
+  facet_wrap(~group) +
+  scale_colour_manual(values = c(vu_blue, vu_orange), guide = "none") +
+  labs(title = "Unaffordability is concentrated in richer provinces",
+       subtitle = "Thin lines = provinces; thick line = group mean",
+       x = NULL, y = "PIR")
+```
+
+Higher-income (largely Randstad) provinces show both higher PIR levels and
+faster growth, so the affordability problem is not uniform — it is regionally
+concentrated.
+
+## Event association: the 2008 financial crisis
+
+```{r fig-event, fig.cap="Average house price around the 2008 crisis (real price data, 1995-2024)."}
+event_df <- price_history |>
+  mutate(period = ifelse(year < 2009, "Pre-2008", "2008 onward"))
+ggplot(event_df, aes(year, avg_price, colour = period)) +
+  geom_vline(xintercept = 2008, linetype = "dotted", colour = vu_red) +
+  geom_line(aes(group = 1), linewidth = 1) + geom_point(size = 1) +
+  annotate("text", x = 2008, y = max(event_df$avg_price),
+           label = "2008 crisis", colour = vu_red, hjust = -0.05, size = 3) +
+  scale_y_continuous(labels = label_number(prefix = "€", big.mark = ",")) +
+  scale_colour_manual(values = c("Pre-2008" = vu_grey, "2008 onward" = vu_blue)) +
+  labs(title = "The crisis interrupted, but did not reverse, the trend",
+       x = NULL, y = "Average price", colour = NULL)
+```
+
+Prices fell for roughly five years after 2008 before resuming their climb,
+showing the crisis as a temporary correction rather than a structural break.
+
+## Spatial variation: a choropleth map
+
+```{r map-data, include=FALSE}
+# Province boundaries (WGS84 GeoJSON), cached locally. We join on the province
+# CODE (statcode = PV20..PV31), not the name, to avoid any encoding mismatch.
+geo_file <- "data/provinces.geojson"
+if (!file.exists(geo_file))
+  try(download.file("https://cartomap.github.io/nl/wgs84/provincie_2024.geojson",
+                    geo_file, quiet = TRUE), silent = TRUE)
+nl <- tryCatch(st_read(geo_file, quiet = TRUE), error = function(e) NULL)
+
+latest <- max(panel$year)
+pir_latest <- panel |> filter(year == latest) |>
+  transmute(statcode = name_to_pv[province], province, pir)
+```
+
+```{r fig-map, fig.width=6, fig.height=7, fig.cap="Price-to-income ratio by province (latest year)."}
+if (!is.null(nl) && "statcode" %in% names(nl)) {
+  nl2 <- nl |> left_join(pir_latest, by = "statcode")
+  ggplot(nl2) +
+    geom_sf(aes(fill = pir), colour = "white", linewidth = .2) +
+    scale_fill_gradient(low = "#cfe8f5", high = vu_red, name = "PIR") +
+    labs(title = paste0("Least affordable provinces, ", latest),
+         subtitle = "Darker = higher price-to-income ratio",
+         caption = "Source: CBS 83625NED, 86161NED; boundaries cartomap.github.io") +
+    theme_void(base_size = 11) + theme(legend.position = "right")
+} else {
+  # Fallback: ranked bar chart if the boundary file can't be fetched offline.
+  ggplot(pir_latest, aes(reorder(province, pir), pir, fill = pir)) +
+    geom_col() + coord_flip() +
+    scale_fill_gradient(low = "#cfe8f5", high = vu_red, guide = "none") +
+    labs(title = paste0("PIR by province, ", latest),
+         subtitle = "Map boundaries unavailable offline — ranked bars shown",
+         x = NULL, y = "PIR")
+}
+```
+
+The map shows a clear Randstad-versus-periphery divide: the western provinces
+carry the highest price-to-income ratios, confirming that the affordability
+problem is spatially concentrated rather than national in scale.
+
+# Key findings
+
+```{r stats, include=FALSE}
+f<-min(national$year); l<-max(national$year)
+pir_f<-national$pir[national$year==f]; pir_l<-national$pir[national$year==l]
+worst<-pir_latest|>slice_max(pir,n=1); best<-pir_latest|>slice_min(pir,n=1)
+```
+
+Nationally the PIR rose from **`r round(pir_f,1)`** in `r f` to
+**`r round(pir_l,1)`** in `r l`. In `r l` the least affordable province was
+**`r worst$province`** (PIR `r round(worst$pir,1)`) and the most affordable
+**`r best$province`** (PIR `r round(best$pir,1)`) — a gap of
+**`r round(worst$pir-best$pir,1)`** points, underscoring the regional dimension.
+
+# Limitations
+
+National and provincial **averages mask within-province variation** (cities vs.
+rural). The analysis covers **owner-occupied purchases only**, excluding the
+large rental and social-housing sector that binds for many households. Figures
+are **nominal** unless stated, so part of the price growth reflects inflation.
+Because the regional income series starts in 2011, the **affordability panel
+spans 2011–2024**; the 2008 event analysis therefore uses the price series
+alone. The event analysis is descriptive and **cannot establish causality**.
+Finally, the PIR uses *disposable* (post-tax) income, so its levels sit above
+the gross-income convention behind the UN-Habitat "3" benchmark and are best read
+as a relative indicator across provinces and time.
+
+# References
+
+**Literature (problem motivation)**
+
+- OECD (2025). *OECD Economic Surveys: Netherlands 2025 — Towards a more
+  accessible and sustainable housing market.* OECD Publishing.
+  https://www.oecd.org/en/publications/oecd-economic-surveys-netherlands-2025_2dd1f4aa-en.html
+- De Nederlandsche Bank (2024). *Borrowing capacity and house prices* (DNB
+  analysis). https://www.dnb.nl/media/ccsjet4s/dnb-analysis-borrowing-capacity-and-house.pdf
+- UN-Habitat (n.d.). *Housing affordability and the price-to-income ratio.*
+  https://unhabitat.org
+
+**Data sources**
+
+- Statistics Netherlands (CBS). *Bestaande koopwoningen; prijzen, regio*
+  (83625NED) and *Inkomen van huishoudens; regio* (86161NED), via the
+  `cbsodataR` package. https://opendata.cbs.nl
+- Province boundaries: cartomap (https://cartomap.github.io/nl).
+
+**Software**
+
+- Wickham, H. et al. (2019). *Welcome to the tidyverse.* JOSS 4(43), 1686.
