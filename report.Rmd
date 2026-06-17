@@ -90,7 +90,7 @@ We chose CBS because it is the authoritative national statistical office, its
 tables are openly licensed and versioned, and both indicators share a common
 `year × province` key that lets us merge them and compute affordability
 directly. The price series runs from 1995, while the regional income series
-begins in 2011; the merged affordability panel therefore covers **2011–2024**,
+begins in 2011; the merged affordability panel therefore covers 2011–2024,
 and the 2008 event analysis uses the longer price series. A limitation is that
 purchase prices ignore the large rental/social sector (discussed in §6).
 
