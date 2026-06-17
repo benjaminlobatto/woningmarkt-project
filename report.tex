@@ -1,0 +1,499 @@
+% Options for packages loaded elsewhere
+\PassOptionsToPackage{unicode}{hyperref}
+\PassOptionsToPackage{hyphens}{url}
+\documentclass[
+]{article}
+\usepackage{xcolor}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb}
+\setcounter{secnumdepth}{5}
+\usepackage{iftex}
+\ifPDFTeX
+  \usepackage[T1]{fontenc}
+  \usepackage[utf8]{inputenc}
+  \usepackage{textcomp} % provide euro and other symbols
+\else % if luatex or xetex
+  \usepackage{unicode-math} % this also loads fontspec
+  \defaultfontfeatures{Scale=MatchLowercase}
+  \defaultfontfeatures[\rmfamily]{Ligatures=TeX,Scale=1}
+\fi
+\usepackage{lmodern}
+\ifPDFTeX\else
+  % xetex/luatex font selection
+\fi
+% Use upquote if available, for straight quotes in verbatim environments
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+\IfFileExists{microtype.sty}{% use microtype if available
+  \usepackage[]{microtype}
+  \UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
+}{}
+\makeatletter
+\@ifundefined{KOMAClassName}{% if non-KOMA class
+  \IfFileExists{parskip.sty}{%
+    \usepackage{parskip}
+  }{% else
+    \setlength{\parindent}{0pt}
+    \setlength{\parskip}{6pt plus 2pt minus 1pt}}
+}{% if KOMA class
+  \KOMAoptions{parskip=half}}
+\makeatother
+\usepackage{color}
+\usepackage{fancyvrb}
+\newcommand{\VerbBar}{|}
+\newcommand{\VERB}{\Verb[commandchars=\\\{\}]}
+\DefineVerbatimEnvironment{Highlighting}{Verbatim}{commandchars=\\\{\}}
+% Add ',fontsize=\small' for more characters per line
+\usepackage{framed}
+\definecolor{shadecolor}{RGB}{248,248,248}
+\newenvironment{Shaded}{\begin{snugshade}}{\end{snugshade}}
+\newcommand{\AlertTok}[1]{\textcolor[rgb]{0.94,0.16,0.16}{#1}}
+\newcommand{\AnnotationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\AttributeTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{#1}}
+\newcommand{\BaseNTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\BuiltInTok}[1]{#1}
+\newcommand{\CharTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\CommentTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{#1}}}
+\newcommand{\CommentVarTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\ConstantTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{#1}}
+\newcommand{\ControlFlowTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\DataTypeTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{#1}}
+\newcommand{\DecValTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\DocumentationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\ErrorTok}[1]{\textcolor[rgb]{0.64,0.00,0.00}{\textbf{#1}}}
+\newcommand{\ExtensionTok}[1]{#1}
+\newcommand{\FloatTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\FunctionTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\ImportTok}[1]{#1}
+\newcommand{\InformationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\KeywordTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\NormalTok}[1]{#1}
+\newcommand{\OperatorTok}[1]{\textcolor[rgb]{0.81,0.36,0.00}{\textbf{#1}}}
+\newcommand{\OtherTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{#1}}
+\newcommand{\PreprocessorTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{#1}}}
+\newcommand{\RegionMarkerTok}[1]{#1}
+\newcommand{\SpecialCharTok}[1]{\textcolor[rgb]{0.81,0.36,0.00}{\textbf{#1}}}
+\newcommand{\SpecialStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\StringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\VariableTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\VerbatimStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\WarningTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\usepackage{longtable,booktabs,array}
+\newcounter{none} % for unnumbered tables
+\usepackage{calc} % for calculating minipage widths
+% Correct order of tables after \paragraph or \subparagraph
+\usepackage{etoolbox}
+\makeatletter
+\patchcmd\longtable{\par}{\if@noskipsec\mbox{}\fi\par}{}{}
+\makeatother
+% Allow footnotes in longtable head/foot
+\IfFileExists{footnotehyper.sty}{\usepackage{footnotehyper}}{\usepackage{footnote}}
+\makesavenoteenv{longtable}
+\usepackage{graphicx}
+\makeatletter
+\newsavebox\pandoc@box
+\newcommand*\pandocbounded[1]{% scales image to fit in text height/width
+  \sbox\pandoc@box{#1}%
+  \Gscale@div\@tempa{\textheight}{\dimexpr\ht\pandoc@box+\dp\pandoc@box\relax}%
+  \Gscale@div\@tempb{\linewidth}{\wd\pandoc@box}%
+  \ifdim\@tempb\p@<\@tempa\p@\let\@tempa\@tempb\fi% select the smaller of both
+  \ifdim\@tempa\p@<\p@\scalebox{\@tempa}{\usebox\pandoc@box}%
+  \else\usebox{\pandoc@box}%
+  \fi%
+}
+% Set default figure placement to htbp
+\def\fps@figure{htbp}
+\makeatother
+\setlength{\emergencystretch}{3em} % prevent overfull lines
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+\usepackage{bookmark}
+\IfFileExists{xurl.sty}{\usepackage{xurl}}{} % add URL line breaks if available
+\urlstyle{same}
+\hypersetup{
+  pdftitle={Quantifying a Social Problem: Housing Inequality in the Netherlands},
+  pdfauthor={Group CPR02: Joey Pekel, Lior Santcroos, Benjamin Lobatto, Jeroen Warnaar, Steven van Zuijlen, Bianca Pariamachi},
+  hidelinks,
+  pdfcreator={LaTeX via pandoc}}
+
+\title{Quantifying a Social Problem: Housing Inequality in the
+Netherlands}
+\usepackage{etoolbox}
+\makeatletter
+\providecommand{\subtitle}[1]{% add subtitle to \maketitle
+  \apptocmd{\@title}{\par {\large #1 \par}}{}{}
+}
+\makeatother
+\subtitle{Affordability, regional disparity, and the price-to-income
+ratio}
+\author{Group CPR02: Joey Pekel, Lior Santcroos, Benjamin Lobatto,
+Jeroen Warnaar, Steven van Zuijlen, Bianca Pariamachi}
+\date{17 June 2026}
+
+\begin{document}
+\maketitle
+
+{
+\setcounter{tocdepth}{2}
+\tableofcontents
+}
+\begin{quote}
+\textbf{Public GitHub repository:}
+\url{https://github.com/benjaminlobatto/woningmarkt-project} \emph{(This
+link is required and must be visible in the handed-in PDF.)}
+\end{quote}
+
+\section{Introduction and context}\label{introduction-and-context}
+
+Housing affordability is one of the most pressing social problems in the
+Netherlands. Over the past two decades, house prices have risen far
+faster than household incomes, and the gap is highly uneven across
+provinces: the Randstad (Noord-Holland, Zuid-Holland, Utrecht) has
+decoupled from peripheral regions. The OECD and UN-Habitat both treat
+the price-to-income ratio (PIR) as a core affordability indicator, with
+a value above 3 widely read as ``unaffordable'' (UN-Habitat, n.d.). The
+OECD's 2025 Economic Survey of the Netherlands documents a structural
+shortage of roughly 400,000 homes and a three-tiered market that
+increasingly squeezes lower- and middle-income households (OECD, 2025).
+De Nederlandsche Bank reaches a similar conclusion from the demand side:
+house prices have outpaced households' borrowing capacity since 2013, so
+that by 2027 only about one in three households is projected to be able
+to finance an average home, down from nearly one in two in 2019 (DNB,
+2024). These two independent assessments --- one structural, one
+financial --- motivate our quantitative analysis below.
+
+This decoupling matters because it shifts wealth toward existing owners
+and locks younger and lower-income households out of ownership,
+reinforcing inter-generational inequality. We quantify the problem along
+three rubric dimensions --- over time, across provinces (space), and
+around a specific event (the 2008 financial crisis) --- and across an
+income sub-population split.
+
+\subsection{Research questions}\label{research-questions}
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  \textbf{Temporal:} How has national housing affordability (PIR)
+  evolved over time?
+\item
+  \textbf{Spatial:} Which provinces are least affordable, and how large
+  is the gap?
+\item
+  \textbf{Event:} How did the 2008 crisis interrupt the price
+  trajectory?
+\item
+  \textbf{Sub-population:} Do affordability dynamics differ between
+  higher- and lower-income provinces?
+\end{enumerate}
+
+\section{Data and methods}\label{data-and-methods}
+
+We document and merge two public CBS datasets, both retrieved
+programmatically via the \texttt{cbsodataR} OData API (collector:
+Statistics Netherlands; method: administrative registers and the Land
+Registry \emph{Kadaster}).
+
+{\def\LTcaptype{none} % do not increment counter
+\begin{longtable}[]{@{}
+  >{\raggedright\arraybackslash}p{(\linewidth - 6\tabcolsep) * \real{0.2500}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 6\tabcolsep) * \real{0.2500}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 6\tabcolsep) * \real{0.2500}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 6\tabcolsep) * \real{0.2500}}@{}}
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+Dataset
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+What it provides
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Granularity
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+CBS table
+\end{minipage} \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+House prices (existing own homes) & Average sale price, € & Year ×
+province & \texttt{83625NED} \\
+Household income & Median disposable income, € & Year × province &
+\texttt{86161NED} \\
+\end{longtable}
+}
+
+We chose CBS because it is the authoritative national statistical
+office, its tables are openly licensed and versioned, and both
+indicators share a common \texttt{year\ ×\ province} key that lets us
+merge them and compute affordability directly. The price series runs
+from 1995, while the regional income series begins in 2011; the merged
+affordability panel therefore covers 2011--2024, and the 2008 event
+analysis uses the longer price series. A limitation is that purchase
+prices ignore the large rental/social sector (discussed in §6).
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# Verified province{-}level CBS tables (confirmed via cbs\_get\_meta to have a}
+\CommentTok{\# RegioS province dimension and yearly Perioden). Each download is cached to}
+\CommentTok{\# data/ on first knit.}
+\NormalTok{raw\_price  }\OtherTok{\textless{}{-}} \FunctionTok{try\_cbs}\NormalTok{(}\StringTok{"83625NED"}\NormalTok{)   }\CommentTok{\# avg sale price, existing homes, by province}
+\NormalTok{raw\_income }\OtherTok{\textless{}{-}} \FunctionTok{try\_cbs}\NormalTok{(}\StringTok{"86161NED"}\NormalTok{)   }\CommentTok{\# disposable household income, by province}
+\end{Highlighting}
+\end{Shaded}
+
+The data source for this knit is: r data\_source`.
+
+\section{Data cleaning and merging}\label{data-cleaning-and-merging}
+
+\texttt{normalise\_cbs()} trims CBS' padded codes, parses the period
+into a numeric \texttt{year}, restricts to the 12 provinces (codes
+\texttt{PV20}--\texttt{PV31}), and rescales income from CBS' ``× 1000
+euro'' unit. We then merge the two datasets on
+\texttt{province\ ×\ year} and construct two new analytical variables:
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{\texttt{pir}} --- the price-to-income ratio
+  (\texttt{avg\_price\ /\ median\_income}), the affordability indicator;
+  and
+\item
+  \textbf{\texttt{gap}} --- the affordability gap index: PIR relative to
+  the UN-Habitat threshold of 3 (\texttt{pir/3\ -\ 1}), so positive
+  values flag unaffordable province-years and the magnitude is directly
+  interpretable.
+\end{itemize}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{panel }\OtherTok{\textless{}{-}} \FunctionTok{inner\_join}\NormalTok{(prices, incomes, }\AttributeTok{by =} \FunctionTok{c}\NormalTok{(}\StringTok{"province"}\NormalTok{,}\StringTok{"year"}\NormalTok{)) }\SpecialCharTok{|\textgreater{}}
+  \FunctionTok{filter}\NormalTok{(province }\SpecialCharTok{\%in\%}\NormalTok{ provinces) }\SpecialCharTok{|\textgreater{}}
+  \FunctionTok{mutate}\NormalTok{(}
+    \AttributeTok{pir =} \FunctionTok{price\_to\_income}\NormalTok{(avg\_price, median\_income),  }\CommentTok{\# new variable 1}
+    \AttributeTok{gap =}\NormalTok{ pir}\SpecialCharTok{/}\DecValTok{3} \SpecialCharTok{{-}} \DecValTok{1}                                    \CommentTok{\# new variable 2}
+\NormalTok{  ) }\SpecialCharTok{|\textgreater{}}
+  \FunctionTok{arrange}\NormalTok{(province, year)}
+
+\CommentTok{\# National yearly aggregates (unweighted mean across provinces).}
+\CommentTok{\# PIR uses the merged panel (2011{-}2024); the price{-}only series spans 1995{-}2024}
+\CommentTok{\# and is used for the 2008 event analysis.}
+\NormalTok{national }\OtherTok{\textless{}{-}}\NormalTok{ panel }\SpecialCharTok{|\textgreater{}}
+  \FunctionTok{group\_by}\NormalTok{(year) }\SpecialCharTok{|\textgreater{}}
+  \FunctionTok{summarise}\NormalTok{(}\AttributeTok{avg\_price =} \FunctionTok{mean}\NormalTok{(avg\_price), }\AttributeTok{median\_income =} \FunctionTok{mean}\NormalTok{(median\_income),}
+            \AttributeTok{pir =} \FunctionTok{mean}\NormalTok{(pir), }\AttributeTok{.groups =} \StringTok{"drop"}\NormalTok{)}
+\NormalTok{price\_history }\OtherTok{\textless{}{-}}\NormalTok{ prices }\SpecialCharTok{|\textgreater{}}
+  \FunctionTok{group\_by}\NormalTok{(year) }\SpecialCharTok{|\textgreater{}} \FunctionTok{summarise}\NormalTok{(}\AttributeTok{avg\_price =} \FunctionTok{mean}\NormalTok{(avg\_price), }\AttributeTok{.groups =} \StringTok{"drop"}\NormalTok{)}
+\FunctionTok{glimpse}\NormalTok{(panel)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## Rows: 168
+## Columns: 6
+## $ province      <chr> "Drenthe", "Drenthe", "Drenthe", "Drenthe", "Drenthe", "~
+## $ year          <int> 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 20~
+## $ avg_price     <dbl> 203389, 193844, 181850, 185239, 194566, 205504, 213562, ~
+## $ median_income <dbl> 32000, 32100, 32200, 32900, 33200, 34200, 34800, 35600, ~
+## $ pir           <dbl> 6.355906, 6.038754, 5.647516, 5.630365, 5.860422, 6.0088~
+## $ gap           <dbl> 1.1186354, 1.0129180, 0.8825052, 0.8767882, 0.9534739, 1~
+\end{verbatim}
+
+\section{Visualisations}\label{visualisations}
+
+\subsection{Temporal variation}\label{temporal-variation}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{ggplot}\NormalTok{(national, }\FunctionTok{aes}\NormalTok{(year, pir)) }\SpecialCharTok{+}
+  \FunctionTok{geom\_hline}\NormalTok{(}\AttributeTok{yintercept =} \DecValTok{3}\NormalTok{, }\AttributeTok{linetype =} \StringTok{"dashed"}\NormalTok{, }\AttributeTok{colour =}\NormalTok{ vu\_navy) }\SpecialCharTok{+}
+  \FunctionTok{geom\_line}\NormalTok{(}\AttributeTok{colour =}\NormalTok{ vu\_blue, }\AttributeTok{linewidth =} \DecValTok{1}\NormalTok{) }\SpecialCharTok{+} \FunctionTok{geom\_point}\NormalTok{(}\AttributeTok{colour =}\NormalTok{ vu\_navy) }\SpecialCharTok{+}
+  \FunctionTok{annotate}\NormalTok{(}\StringTok{"text"}\NormalTok{, }\AttributeTok{x =} \FunctionTok{min}\NormalTok{(national}\SpecialCharTok{$}\NormalTok{year), }\AttributeTok{y =} \DecValTok{3}\NormalTok{,}
+           \AttributeTok{label =} \StringTok{"UN{-}Habitat threshold = 3"}\NormalTok{, }\AttributeTok{vjust =} \SpecialCharTok{{-}}\FloatTok{0.6}\NormalTok{, }\AttributeTok{hjust =} \DecValTok{0}\NormalTok{,}
+           \AttributeTok{colour =}\NormalTok{ vu\_navy, }\AttributeTok{size =} \DecValTok{3}\NormalTok{) }\SpecialCharTok{+}
+  \FunctionTok{labs}\NormalTok{(}\AttributeTok{title =} \StringTok{"Affordability has steadily worsened"}\NormalTok{,}
+       \AttributeTok{subtitle =} \FunctionTok{paste0}\NormalTok{(}\StringTok{"National average PIR, "}\NormalTok{, }\FunctionTok{min}\NormalTok{(national}\SpecialCharTok{$}\NormalTok{year), }\StringTok{"–"}\NormalTok{,}
+                         \FunctionTok{max}\NormalTok{(national}\SpecialCharTok{$}\NormalTok{year)),}
+       \AttributeTok{x =} \ConstantTok{NULL}\NormalTok{, }\AttributeTok{y =} \StringTok{"Price{-}to{-}income ratio"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{figure}
+
+{\centering \includegraphics{report_files/figure-latex/fig-temporal-1} 
+
+}
+
+\caption{National price-to-income ratio over time.}\label{fig:fig-temporal}
+\end{figure}
+
+The PIR (years of median disposable income per average home) sits far
+above the UN-Habitat affordability threshold of 3 throughout and trends
+clearly upward, confirming a structural worsening of affordability over
+the observed period.
+
+\subsection{Sub-population variation}\label{sub-population-variation}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{grp }\OtherTok{\textless{}{-}}\NormalTok{ panel }\SpecialCharTok{|\textgreater{}}
+  \FunctionTok{group\_by}\NormalTok{(province) }\SpecialCharTok{|\textgreater{}} \FunctionTok{mutate}\NormalTok{(}\AttributeTok{mean\_inc =} \FunctionTok{mean}\NormalTok{(median\_income)) }\SpecialCharTok{|\textgreater{}} \FunctionTok{ungroup}\NormalTok{() }\SpecialCharTok{|\textgreater{}}
+  \FunctionTok{mutate}\NormalTok{(}\AttributeTok{group =} \FunctionTok{ifelse}\NormalTok{(mean\_inc }\SpecialCharTok{\textgreater{}=} \FunctionTok{median}\NormalTok{(mean\_inc),}
+                        \StringTok{"Higher{-}income provinces"}\NormalTok{, }\StringTok{"Lower{-}income provinces"}\NormalTok{))}
+\FunctionTok{ggplot}\NormalTok{(grp, }\FunctionTok{aes}\NormalTok{(year, pir, }\AttributeTok{group =}\NormalTok{ province, }\AttributeTok{colour =}\NormalTok{ group)) }\SpecialCharTok{+}
+  \FunctionTok{geom\_line}\NormalTok{(}\AttributeTok{alpha =}\NormalTok{ .}\DecValTok{5}\NormalTok{) }\SpecialCharTok{+}
+  \FunctionTok{stat\_summary}\NormalTok{(}\FunctionTok{aes}\NormalTok{(}\AttributeTok{group =}\NormalTok{ group), }\AttributeTok{fun =}\NormalTok{ mean, }\AttributeTok{geom =} \StringTok{"line"}\NormalTok{, }\AttributeTok{linewidth =} \FloatTok{1.2}\NormalTok{) }\SpecialCharTok{+}
+  \FunctionTok{facet\_wrap}\NormalTok{(}\SpecialCharTok{\textasciitilde{}}\NormalTok{group) }\SpecialCharTok{+}
+  \FunctionTok{scale\_colour\_manual}\NormalTok{(}\AttributeTok{values =} \FunctionTok{c}\NormalTok{(vu\_blue, vu\_orange), }\AttributeTok{guide =} \StringTok{"none"}\NormalTok{) }\SpecialCharTok{+}
+  \FunctionTok{labs}\NormalTok{(}\AttributeTok{title =} \StringTok{"Unaffordability is concentrated in richer provinces"}\NormalTok{,}
+       \AttributeTok{subtitle =} \StringTok{"Thin lines = provinces; thick line = group mean"}\NormalTok{,}
+       \AttributeTok{x =} \ConstantTok{NULL}\NormalTok{, }\AttributeTok{y =} \StringTok{"PIR"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{figure}
+
+{\centering \includegraphics{report_files/figure-latex/fig-subpop-1} 
+
+}
+
+\caption{PIR for higher- vs. lower-income provinces.}\label{fig:fig-subpop}
+\end{figure}
+
+Higher-income (largely Randstad) provinces show both higher PIR levels
+and faster growth, so the affordability problem is not uniform --- it is
+regionally concentrated.
+
+\subsection{Event association: the 2008 financial
+crisis}\label{event-association-the-2008-financial-crisis}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{event\_df }\OtherTok{\textless{}{-}}\NormalTok{ price\_history }\SpecialCharTok{|\textgreater{}}
+  \FunctionTok{mutate}\NormalTok{(}\AttributeTok{period =} \FunctionTok{ifelse}\NormalTok{(year }\SpecialCharTok{\textless{}} \DecValTok{2009}\NormalTok{, }\StringTok{"Pre{-}2008"}\NormalTok{, }\StringTok{"2008 onward"}\NormalTok{))}
+\FunctionTok{ggplot}\NormalTok{(event\_df, }\FunctionTok{aes}\NormalTok{(year, avg\_price, }\AttributeTok{colour =}\NormalTok{ period)) }\SpecialCharTok{+}
+  \FunctionTok{geom\_vline}\NormalTok{(}\AttributeTok{xintercept =} \DecValTok{2008}\NormalTok{, }\AttributeTok{linetype =} \StringTok{"dotted"}\NormalTok{, }\AttributeTok{colour =}\NormalTok{ vu\_red) }\SpecialCharTok{+}
+  \FunctionTok{geom\_line}\NormalTok{(}\FunctionTok{aes}\NormalTok{(}\AttributeTok{group =} \DecValTok{1}\NormalTok{), }\AttributeTok{linewidth =} \DecValTok{1}\NormalTok{) }\SpecialCharTok{+} \FunctionTok{geom\_point}\NormalTok{(}\AttributeTok{size =} \DecValTok{1}\NormalTok{) }\SpecialCharTok{+}
+  \FunctionTok{annotate}\NormalTok{(}\StringTok{"text"}\NormalTok{, }\AttributeTok{x =} \DecValTok{2008}\NormalTok{, }\AttributeTok{y =} \FunctionTok{max}\NormalTok{(event\_df}\SpecialCharTok{$}\NormalTok{avg\_price),}
+           \AttributeTok{label =} \StringTok{"2008 crisis"}\NormalTok{, }\AttributeTok{colour =}\NormalTok{ vu\_red, }\AttributeTok{hjust =} \SpecialCharTok{{-}}\FloatTok{0.05}\NormalTok{, }\AttributeTok{size =} \DecValTok{3}\NormalTok{) }\SpecialCharTok{+}
+  \FunctionTok{scale\_y\_continuous}\NormalTok{(}\AttributeTok{labels =} \FunctionTok{label\_number}\NormalTok{(}\AttributeTok{prefix =} \StringTok{"€"}\NormalTok{, }\AttributeTok{big.mark =} \StringTok{","}\NormalTok{)) }\SpecialCharTok{+}
+  \FunctionTok{scale\_colour\_manual}\NormalTok{(}\AttributeTok{values =} \FunctionTok{c}\NormalTok{(}\StringTok{"Pre{-}2008"} \OtherTok{=}\NormalTok{ vu\_grey, }\StringTok{"2008 onward"} \OtherTok{=}\NormalTok{ vu\_blue)) }\SpecialCharTok{+}
+  \FunctionTok{labs}\NormalTok{(}\AttributeTok{title =} \StringTok{"The crisis interrupted, but did not reverse, the trend"}\NormalTok{,}
+       \AttributeTok{x =} \ConstantTok{NULL}\NormalTok{, }\AttributeTok{y =} \StringTok{"Average price"}\NormalTok{, }\AttributeTok{colour =} \ConstantTok{NULL}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{figure}
+
+{\centering \includegraphics{report_files/figure-latex/fig-event-1} 
+
+}
+
+\caption{Average house price around the 2008 crisis (real price data, 1995-2024).}\label{fig:fig-event}
+\end{figure}
+
+Prices fell for roughly five years after 2008 before resuming their
+climb, showing the crisis as a temporary correction rather than a
+structural break.
+
+\subsection{Spatial variation: a choropleth
+map}\label{spatial-variation-a-choropleth-map}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\ControlFlowTok{if}\NormalTok{ (}\SpecialCharTok{!}\FunctionTok{is.null}\NormalTok{(nl) }\SpecialCharTok{\&\&} \StringTok{"statcode"} \SpecialCharTok{\%in\%} \FunctionTok{names}\NormalTok{(nl)) \{}
+\NormalTok{  nl2 }\OtherTok{\textless{}{-}}\NormalTok{ nl }\SpecialCharTok{|\textgreater{}} \FunctionTok{left\_join}\NormalTok{(pir\_latest, }\AttributeTok{by =} \StringTok{"statcode"}\NormalTok{)}
+  \FunctionTok{ggplot}\NormalTok{(nl2) }\SpecialCharTok{+}
+    \FunctionTok{geom\_sf}\NormalTok{(}\FunctionTok{aes}\NormalTok{(}\AttributeTok{fill =}\NormalTok{ pir), }\AttributeTok{colour =} \StringTok{"white"}\NormalTok{, }\AttributeTok{linewidth =}\NormalTok{ .}\DecValTok{2}\NormalTok{) }\SpecialCharTok{+}
+    \FunctionTok{scale\_fill\_gradient}\NormalTok{(}\AttributeTok{low =} \StringTok{"\#cfe8f5"}\NormalTok{, }\AttributeTok{high =}\NormalTok{ vu\_red, }\AttributeTok{name =} \StringTok{"PIR"}\NormalTok{) }\SpecialCharTok{+}
+    \FunctionTok{labs}\NormalTok{(}\AttributeTok{title =} \FunctionTok{paste0}\NormalTok{(}\StringTok{"Least affordable provinces, "}\NormalTok{, latest),}
+         \AttributeTok{subtitle =} \StringTok{"Darker = higher price{-}to{-}income ratio"}\NormalTok{,}
+         \AttributeTok{caption =} \StringTok{"Source: CBS 83625NED, 86161NED; boundaries cartomap.github.io"}\NormalTok{) }\SpecialCharTok{+}
+    \FunctionTok{theme\_void}\NormalTok{(}\AttributeTok{base\_size =} \DecValTok{11}\NormalTok{) }\SpecialCharTok{+} \FunctionTok{theme}\NormalTok{(}\AttributeTok{legend.position =} \StringTok{"right"}\NormalTok{)}
+\NormalTok{\} }\ControlFlowTok{else}\NormalTok{ \{}
+  \CommentTok{\# Fallback: ranked bar chart if the boundary file can\textquotesingle{}t be fetched offline.}
+  \FunctionTok{ggplot}\NormalTok{(pir\_latest, }\FunctionTok{aes}\NormalTok{(}\FunctionTok{reorder}\NormalTok{(province, pir), pir, }\AttributeTok{fill =}\NormalTok{ pir)) }\SpecialCharTok{+}
+    \FunctionTok{geom\_col}\NormalTok{() }\SpecialCharTok{+} \FunctionTok{coord\_flip}\NormalTok{() }\SpecialCharTok{+}
+    \FunctionTok{scale\_fill\_gradient}\NormalTok{(}\AttributeTok{low =} \StringTok{"\#cfe8f5"}\NormalTok{, }\AttributeTok{high =}\NormalTok{ vu\_red, }\AttributeTok{guide =} \StringTok{"none"}\NormalTok{) }\SpecialCharTok{+}
+    \FunctionTok{labs}\NormalTok{(}\AttributeTok{title =} \FunctionTok{paste0}\NormalTok{(}\StringTok{"PIR by province, "}\NormalTok{, latest),}
+         \AttributeTok{subtitle =} \StringTok{"Map boundaries unavailable offline — ranked bars shown"}\NormalTok{,}
+         \AttributeTok{x =} \ConstantTok{NULL}\NormalTok{, }\AttributeTok{y =} \StringTok{"PIR"}\NormalTok{)}
+\NormalTok{\}}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{figure}
+
+{\centering \includegraphics{report_files/figure-latex/fig-map-1} 
+
+}
+
+\caption{Price-to-income ratio by province (latest year).}\label{fig:fig-map}
+\end{figure}
+
+The map shows a clear Randstad-versus-periphery divide: the western
+provinces carry the highest price-to-income ratios, confirming that the
+affordability problem is spatially concentrated rather than national in
+scale.
+
+\section{Key findings}\label{key-findings}
+
+Nationally the PIR rose from 7.1** in 2011 to 8.8** in 2024. In 2024 the
+least affordable province was Noord-Holland** (PIR 11.5) and the most
+affordable Zeeland** (PIR 7.3) --- a gap of 4.3** points, underscoring
+the regional dimension.
+
+\section{Limitations}\label{limitations}
+
+National and provincial averages mask within-province variation (cities
+vs. rural). The analysis covers owner-occupied purchases only, excluding
+the large rental and social-housing sector that binds for many
+households. Figures are nominal unless stated, so part of the price
+growth reflects inflation. Because the regional income series starts in
+2011, the affordability panel spans 2011-2024; the 2008 event analysis
+therefore uses the price series alone. The event analysis is descriptive
+and cannot establish causality. Finally, the PIR uses disposable
+(post-tax) income, so its levels sit above the gross-income convention
+behind the UN-Habitat ``3'' benchmark and are best read as a relative
+indicator across provinces and time.
+
+\section{References}\label{references}
+
+\textbf{Literature (problem motivation)}
+
+\begin{itemize}
+\tightlist
+\item
+  OECD (2025). \emph{OECD Economic Surveys: Netherlands 2025 --- Towards
+  a more accessible and sustainable housing market.} OECD Publishing.
+  \url{https://www.oecd.org/en/publications/oecd-economic-surveys-netherlands-2025_2dd1f4aa-en.html}
+\item
+  De Nederlandsche Bank (2024). \emph{Borrowing capacity and house
+  prices} (DNB analysis).
+  \url{https://www.dnb.nl/media/ccsjet4s/dnb-analysis-borrowing-capacity-and-house.pdf}
+\item
+  UN-Habitat (n.d.). \emph{Housing affordability and the price-to-income
+  ratio.} \url{https://unhabitat.org}
+\end{itemize}
+
+\textbf{Data sources}
+
+\begin{itemize}
+\tightlist
+\item
+  Statistics Netherlands (CBS). \emph{Bestaande koopwoningen; prijzen,
+  regio} (83625NED) and \emph{Inkomen van huishoudens; regio}
+  (86161NED), via the \texttt{cbsodataR} package.
+  \url{https://opendata.cbs.nl}
+\item
+  Province boundaries: cartomap (\url{https://cartomap.github.io/nl}).
+\end{itemize}
+
+\textbf{Software}
+
+\begin{itemize}
+\tightlist
+\item
+  Wickham, H. et al.~(2019). \emph{Welcome to the tidyverse.} JOSS
+  4(43), 1686.
+\end{itemize}
+
+\end{document}
