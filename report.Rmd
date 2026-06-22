@@ -40,7 +40,6 @@ source("R/helpers.R")  # cbs_cached(), try_cbs(), normalise_cbs(), price_to_inco
 ```
 
 > **Public GitHub repository:** <https://github.com/benjaminlobatto/woningmarkt-project>
-> *(This link is required and must be visible in the handed-in PDF.)*
 
 # Introduction and context
 
@@ -57,14 +56,14 @@ market that increasingly squeezes lower- and middle-income households (OECD,
 house prices have outpaced households' borrowing capacity since 2013, so that by
 2027 only about one in three households is projected to be able to finance an
 average home, down from nearly one in two in 2019 (DNB, 2024). These two
-independent assessments — one structural, one financial — motivate our
+independent assessments; one structural, one financial. Motivate our
 quantitative analysis below.
 
 This decoupling matters because it shifts wealth toward existing owners and
 locks younger and lower-income households out of ownership, reinforcing
 inter-generational inequality. We quantify the problem along three rubric
-dimensions — over time, across provinces (space), and around a specific
-event (the 2008 financial crisis) — and across an income sub-population
+dimensions over time, across provinces (space), and around a specific
+event (the 2008 financial crisis) and across an income sub-population
 split.
 
 ## Research questions
@@ -78,7 +77,7 @@ split.
 # Data and methods
 
 We document and merge two public CBS datasets, both retrieved
-programmatically via the `cbsodataR` OData API (collector: Statistics
+programmatically via the cbsodataR OData API (collector: Statistics
 Netherlands; method: administrative registers and the Land Registry *Kadaster*).
 
 | Dataset | What it provides | Granularity | CBS table |
@@ -88,7 +87,7 @@ Netherlands; method: administrative registers and the Land Registry *Kadaster*).
 
 We chose CBS because it is the authoritative national statistical office, its
 tables are openly licensed and versioned, and both indicators share a common
-`year × province` key that lets us merge them and compute affordability
+year × province key that lets us merge them and compute affordability
 directly. The price series runs from 1995, while the regional income series
 begins in 2011; the merged affordability panel therefore covers 2011–2024,
 and the 2008 event analysis uses the longer price series. A limitation is that
@@ -135,9 +134,9 @@ The data source for this knit is: r data_source`.
 `normalise_cbs()` trims CBS' padded codes, parses the period into a numeric
 `year`, restricts to the 12 provinces (codes `PV20`–`PV31`), and rescales income
 from CBS' "× 1000 euro" unit. We then merge the two datasets on
-`province × year` and construct two new analytical variables:
+province per year and construct two new analytical variables:
 
-- **`pir`** — the price-to-income ratio (`avg_price / median_income`), the
+- **`pir`** — the price-to-income ratio (avg_price / median_income), the
   affordability indicator; and
 - **`gap`** — the affordability gap index: PIR relative to the UN-Habitat
   threshold of 3 (`pir/3 - 1`), so positive values flag unaffordable
@@ -274,11 +273,11 @@ pir_f<-national$pir[national$year==f]; pir_l<-national$pir[national$year==l]
 worst<-pir_latest|>slice_max(pir,n=1); best<-pir_latest|>slice_min(pir,n=1)
 ```
 
-Nationally the PIR rose from `r round(pir_f,1)`** in `r f` to
-`r round(pir_l,1)`** in `r l`. In `r l` the least affordable province was
-`r worst$province`** (PIR `r round(worst$pir,1)`) and the most affordable
-`r best$province`** (PIR `r round(best$pir,1)`) — a gap of
-`r round(worst$pir-best$pir,1)`** points, underscoring the regional dimension.
+Nationally the PIR rose from r round(pir_f,1) in 'r f' to
+r round(pir_l,1)' in 'r l'. In r l the least affordable province was
+r worst$province' (PIR r round(worst$pir,1)') and the most affordable
+r best$province` (PIR r round(best$pir,1)`) — a gap of
+r round(worst$pir-best$pir,1) points, underscoring the regional dimension.
 
 # Limitations
 
