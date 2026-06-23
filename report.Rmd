@@ -9,7 +9,6 @@ output:
     toc_depth: 2
     number_sections: true
     fig_caption: true
-# Public GitHub repository (REQUIRED in the handed-in PDF):
 # https://github.com/benjaminlobatto/woningmarkt-project
 ---
 
